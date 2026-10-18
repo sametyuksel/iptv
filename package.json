@@ -57,10 +57,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dearbulut/iptv.git"
+    "url": "git+https://github.com/sametyuksel/iptv.git"
   },
-  "homepage": "https://dearbulut.github.io/iptv",
+  "homepage": "https://sametyuksel.github.io/iptv",
   "bugs": {
-    "url": "https://github.com/dearbulut/iptv/issues"
+    "url": "https://github.com/sametyuksel/iptv/issues"
   }
 }

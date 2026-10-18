@@ -1,9 +1,5 @@
 # IPTV Nexus
 
-I've spent the last 7 years building IPTV systems end to end — multi-platform player apps (iOS, Android TV, Tizen, webOS), streaming backends, and reseller/admin panels. 
-If you need a custom build or want to take an existing setup further, let's talk. 
-Telegram: t.me/bulutworksdev
-
 A self-updating index of free-to-air IPTV channels, with **live stream health
 scoring**, **merged EPG data**, a **free static JSON API** and a **web player** —
 all running on GitHub Actions and GitHub Pages at zero cost.
@@ -87,10 +83,10 @@ shards, so one guide URL works with every generated playlist.
 
 | Playlist | Contents | URL |
 | --- | --- | --- |
-| **Best** | One stream per channel, best first | `https://dearbulut.github.io/iptv/playlists/best.m3u` |
-| **Working only** | Only streams that passed the last health check | `https://dearbulut.github.io/iptv/playlists/online.m3u` |
-| **Everything** | Every stream, including backups | `https://dearbulut.github.io/iptv/playlists/index.m3u` |
-| **EPG** | Programme guide for every linked channel | `https://dearbulut.github.io/iptv/epg/guide.xml.gz` |
+| **Best** | One stream per channel, best first | `https://sametyuksel.github.io/iptv/playlists/best.m3u` |
+| **Working only** | Only streams that passed the last health check | `https://sametyuksel.github.io/iptv/playlists/online.m3u` |
+| **Everything** | Every stream, including backups | `https://sametyuksel.github.io/iptv/playlists/index.m3u` |
+| **EPG** | Programme guide for every linked channel | `https://sametyuksel.github.io/iptv/epg/guide.xml.gz` |
 
 Per-country, per-category and per-language playlists: [**PLAYLISTS.md**](PLAYLISTS.md).
 
@@ -101,7 +97,7 @@ Per-country, per-category and per-language playlists: [**PLAYLISTS.md**](PLAYLIS
 Once deployed, everything is a plain file on a CDN. No key, no rate limit:
 
 ```bash
-BASE=https://dearbulut.github.io/iptv
+BASE=https://sametyuksel.github.io/iptv
 
 curl "$BASE/api/v1/index.json"                  # manifest & counts
 curl "$BASE/api/v1/channels.json"               # every channel
@@ -132,7 +128,7 @@ console.log(picks[0].name, picks[0].streams[0].url);
 1. **Fork this repository.**
 2. Enable GitHub Pages: *Settings → Pages → Source: **GitHub Actions***.
 3. Run the **Sync & Deploy** workflow from the Actions tab.
-4. Your API is live at `https://dearbulut.github.io/iptv/`.
+4. Your API is live at `https://sametyuksel.github.io/iptv/`.
 
 From then on it maintains itself: sync every 6 hours, health scans twice daily,
 source discovery weekly.
@@ -140,7 +136,7 @@ source discovery weekly.
 ### Run locally
 
 ```bash
-git clone https://github.com/dearbulut/iptv.git && cd iptv
+git clone https://github.com/sametyuksel/iptv.git && cd iptv
 npm install
 
 npm run cli -- aggregate               # fetch and merge the dataset

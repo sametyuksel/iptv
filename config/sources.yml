@@ -25,7 +25,7 @@ sources:
   - id: discovered
     name: Auto-discovered streams
     type: m3u
-    url: https://raw.githubusercontent.com/dearbulut/iptv/main/config/discovered.m3u
+    url: https://raw.githubusercontent.com/sametyuksel/iptv/main/config/discovered.m3u
     enabled: true
     trust: 0.35
 

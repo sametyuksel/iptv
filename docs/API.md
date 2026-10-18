@@ -8,7 +8,7 @@ Machine-readable schema: [`/api/v1/openapi.json`](../public/api/v1/openapi.json)
 (generated at build time).
 
 Throughout, `BASE` is your deployment root, e.g.
-`https://dearbulut.github.io/iptv`.
+`https://sametyuksel.github.io/iptv`.
 
 ## Conventions
 
@@ -32,7 +32,7 @@ The manifest. Fetch this first — it tells you what exists and when it was buil
   "name": "IPTV Nexus",
   "version": "1.0.0",
   "generated_at": "2026-07-26T18:00:00.000Z",
-  "base_url": "https://dearbulut.github.io/iptv",
+  "base_url": "https://sametyuksel.github.io/iptv",
   "counts": {
     "channels": 39421,
     "online_channels": 8214,
