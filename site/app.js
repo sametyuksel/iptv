@@ -1,9 +1,9 @@
 /**
- * IPTV Nexus web client.
+ * Frekans TV.
  *
- * Loads the compact search index once (~a few MB gzipped for 40k channels),
- * filters entirely in the browser, and fetches per-channel detail documents
- * lazily when a channel is opened. No framework, no build step.
+ * Loads the compact search index once, filters in the browser, and fetches a
+ * channel document only when it is opened. Playback stays in the browser:
+ * this page never proxies video. No framework, no build step.
  */
 
 const API = 'api/v1';
@@ -57,7 +57,7 @@ const el = (tag, className, text) => {
 
 function loadFavourites() {
   try {
-    return new Set(JSON.parse(localStorage.getItem('nexus:favourites') ?? '[]'));
+    return new Set(JSON.parse(localStorage.getItem('frekans:favorites') ?? '[]'));
   } catch {
     return new Set();
   }
@@ -65,7 +65,7 @@ function loadFavourites() {
 
 function saveFavourites() {
   try {
-    localStorage.setItem('nexus:favourites', JSON.stringify([...state.favourites]));
+    localStorage.setItem('frekans:favorites', JSON.stringify([...state.favourites]));
   } catch {
     /* private mode — favourites stay in memory for this session */
   }
@@ -73,7 +73,7 @@ function saveFavourites() {
 
 function loadTheme() {
   try {
-    const stored = localStorage.getItem('nexus:theme');
+    const stored = localStorage.getItem('frekans:theme');
     if (stored) document.documentElement.dataset.theme = stored;
     else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
       document.documentElement.dataset.theme = 'light';
@@ -117,14 +117,19 @@ function initials(name) {
 }
 
 function formatNumber(value) {
-  return new Intl.NumberFormat().format(value);
+  return new Intl.NumberFormat('tr-TR').format(value);
 }
 
 function formatTime(iso) {
   const date = new Date(iso);
   return Number.isNaN(date.getTime())
     ? '--:--'
-    : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    : date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function categoryLabel(id) {
+  if (!id) return '';
+  return state.categories.get(id)?.name ?? id;
 }
 
 async function getJson(path) {
@@ -135,8 +140,19 @@ async function getJson(path) {
 
 // ---------------------------------------------------------------- boot
 
+function startClock() {
+  const node = $('#clock');
+  if (!node) return;
+  const tick = () => {
+    node.textContent = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+  };
+  tick();
+  window.setInterval(tick, 15000);
+}
+
 async function boot() {
   loadTheme();
+  startClock();
   wireEvents();
 
   try {
@@ -173,7 +189,7 @@ async function boot() {
     renderStats();
   } catch (error) {
     $('#result-count').textContent =
-      'Could not load the channel index. If you are opening this file directly, serve it over HTTP instead.';
+      'Kanal dizini açılmadı. Sayfayı dosyadan değil, HTTP üzerinden açın.';
     console.error(error);
   }
 }
@@ -194,20 +210,15 @@ function fillSelect(select, items, valueKey, labelOf) {
 
 function renderBrandMeta() {
   if (!state.manifest) {
-    $('#brand-meta').textContent = `${formatNumber(state.channels.length)} channels`;
+    $('#brand-meta').textContent = `${formatNumber(state.channels.length)} kanal`;
     return;
   }
   const { counts, generated_at: generatedAt } = state.manifest;
-  // Lead with what is actually watchable. `channels` counts every database
-  // entry, most of which have no stream attached.
   const playable = counts.playable_channels ?? counts.channels;
-  $('#brand-meta').textContent =
-    `${formatNumber(playable)} playable · ${formatNumber(counts.online_streams)} live` +
-    ` · ${formatNumber(counts.channels)} indexed`;
+  $('#brand-meta').textContent = `${formatNumber(playable)} yayın · ${formatNumber(counts.online_streams)} canlı`;
   $('#footer-meta').textContent =
-    `Last updated ${new Date(generatedAt).toLocaleString()} · ` +
-    `${formatNumber(counts.streams)} streams · ${formatNumber(counts.epg_programmes)} EPG entries · ` +
-    `data from ${state.manifest.upstream?.source ?? 'upstream'}`;
+    `Son üretim ${new Date(generatedAt).toLocaleString('tr-TR')} · ` +
+    `${formatNumber(counts.streams)} adres · ${formatNumber(counts.epg_programmes)} rehber kaydı`;
 }
 
 function renderStats() {
@@ -216,11 +227,11 @@ function renderStats() {
   const hd = withStream.filter((row) => parseInt(row[F.QUALITY], 10) >= 720).length;
   $('#stats').innerHTML = '';
   const rows = [
-    ['With a stream', formatNumber(withStream.length)],
-    ['Working now', formatNumber(online)],
-    ['HD or better', formatNumber(hd)],
-    ['Indexed total', formatNumber(state.channels.length)],
-    ['Favourites', formatNumber(state.favourites.size)],
+    ['Yayını olan', formatNumber(withStream.length)],
+    ['Şu an çalışan', formatNumber(online)],
+    ['HD ve üzeri', formatNumber(hd)],
+    ['Kayıtlı kanal', formatNumber(state.channels.length)],
+    ['Favori', formatNumber(state.favourites.size)],
   ];
   for (const [label, value] of rows) {
     const line = el('div');
@@ -283,10 +294,18 @@ function applyFilters(resetScroll = true) {
   $('#results').innerHTML = '';
   if (resetScroll) window.scrollTo({ top: 0, behavior: 'auto' });
 
-  const label = `${formatNumber(rows.length)} channel${rows.length === 1 ? '' : 's'}`;
-  $('#result-count').textContent = state.filters.playable
-    ? `${label} with a stream`
-    : label;
+  const label = `${formatNumber(rows.length)} kanal`;
+  $('#result-count').textContent = state.filters.playable ? `${label}, yayını olan` : label;
+  const title = $('#list-title');
+  if (title) {
+    title.textContent = state.filters.favourites
+      ? 'Favoriler'
+      : state.filters.country
+        ? (state.countries.get(state.filters.country)?.name ?? 'Kanallar')
+        : state.query
+          ? 'Arama'
+          : 'Kanallar';
+  }
   $('#empty').hidden = rows.length > 0;
 
   renderChips();
@@ -308,10 +327,10 @@ function renderChips() {
   if (state.filters.language) {
     active.push(['language', state.languages.get(state.filters.language)?.name ?? state.filters.language]);
   }
-  if (state.filters.playable) active.push(['playable', 'Has a stream']);
-  if (state.filters.online) active.push(['online', 'Working only']);
-  if (state.filters.hd) active.push(['hd', 'HD+']);
-  if (state.filters.favourites) active.push(['favourites', 'Favourites']);
+  if (state.filters.playable) active.push(['playable', 'Yayını olan']);
+  if (state.filters.online) active.push(['online', 'Çalışan']);
+  if (state.filters.hd) active.push(['hd', 'HD']);
+  if (state.filters.favourites) active.push(['favourites', 'Favoriler']);
 
   for (const [key, label] of active) {
     const chip = el('button', 'chip', label);
@@ -362,7 +381,7 @@ function renderCard(row) {
   const card = el('button', 'card');
   card.type = 'button';
   card.dataset.id = row[F.ID];
-  card.setAttribute('aria-label', `Open ${row[F.NAME]}`);
+  card.setAttribute('aria-label', `${row[F.NAME]} kanalını aç`);
 
   const top = el('div', 'card__top');
 
@@ -382,7 +401,8 @@ function renderCard(row) {
   titles.append(el('div', 'card__name', row[F.NAME]));
 
   const country = state.countries.get(row[F.COUNTRY].toLowerCase());
-  const subtitle = [country ? `${country.flag ?? ''} ${country.name}` : row[F.COUNTRY], row[F.CATEGORIES].split(';')[0]]
+  const category = row[F.CATEGORIES].split(';').filter(Boolean)[0];
+  const subtitle = [country ? `${country.flag ?? ''} ${country.name}` : row[F.COUNTRY], categoryLabel(category)]
     .filter(Boolean)
     .join(' · ');
   titles.append(el('div', 'card__sub', subtitle));
@@ -395,7 +415,7 @@ function renderCard(row) {
     // No stream at all: the channel exists in the database but there is
     // nothing to play, which is a different thing from "not yet checked".
     tags.append(el('span', 'dot dot--unknown'));
-    tags.append(el('span', 'tag', 'No stream'));
+    tags.append(el('span', 'tag', 'Yayın yok'));
     card.append(tags);
     card.addEventListener('click', () => openChannel(row[F.ID]));
     return card;
@@ -407,13 +427,13 @@ function renderCard(row) {
     el(
       'span',
       `tag tag--${status === 'unknown' ? '' : status}`.trim(),
-      row[F.ONLINE] === 1 ? 'Live' : row[F.SCORE] > 0 ? `${Math.round(row[F.SCORE])}%` : 'Unchecked',
+      row[F.ONLINE] === 1 ? 'Canlı' : row[F.SCORE] > 0 ? `${Math.round(row[F.SCORE])}%` : 'Bakılmadı',
     ),
   );
   if (row[F.QUALITY]) {
     tags.append(el('span', `tag${parseInt(row[F.QUALITY], 10) >= 720 ? ' tag--hd' : ''}`, row[F.QUALITY]));
   }
-  if (row[F.STREAMS] > 1) tags.append(el('span', 'tag', `${row[F.STREAMS]} streams`));
+  if (row[F.STREAMS] > 1) tags.append(el('span', 'tag', `${row[F.STREAMS]} adres`));
   if (state.favourites.has(row[F.ID])) tags.append(el('span', 'tag', '★'));
   card.append(tags);
 
@@ -432,7 +452,8 @@ async function openChannel(id) {
   panel.hidden = false;
   document.body.style.overflow = 'hidden';
 
-  $('#player-title').textContent = 'Loading…';
+  $('#player-title').textContent = 'Açılıyor…';
+  document.title = 'Frekans TV';
   $('#player-sub').textContent = '';
   $('#player-streams').innerHTML = '';
   $('#player-epg').innerHTML = '';
@@ -444,8 +465,8 @@ async function openChannel(id) {
       channel = await getJson(`${API}/channels/${encodeURIComponent(id)}.json`);
       state.detailCache.set(id, channel);
     } catch {
-      $('#player-title').textContent = 'Channel unavailable';
-      $('#player-sub').textContent = 'The detail document could not be loaded.';
+      $('#player-title').textContent = 'Kanal açılamadı';
+      $('#player-sub').textContent = 'Kanal kaydı yüklenemedi.';
       return;
     }
   }
@@ -458,24 +479,41 @@ async function openChannel(id) {
 
   const best = channel.streams?.[0];
   if (best) playStream(best, 0);
-  else setStatus('No stream is currently listed for this channel.');
+  else setStatus('Bu kanalın listelenmiş yayını yok.');
+}
+
+function zap(delta) {
+  if (!state.current) return;
+  const index = state.filtered.findIndex((row) => row[F.ID] === state.current.id);
+  const next = state.filtered[index + delta];
+  if (next) openChannel(next[F.ID]);
 }
 
 function renderPlayerHeader(channel) {
   const logo = $('#player-logo');
-  if (channel.logo) {
-    logo.src = channel.logo;
-    logo.hidden = false;
-  } else {
+  const fallback = $('#player-fallback');
+  const showFallback = () => {
     logo.hidden = true;
+    if (!fallback) return;
+    fallback.hidden = false;
+    fallback.textContent = initials(channel.name);
+  };
+  if (channel.logo) {
+    logo.hidden = false;
+    if (fallback) fallback.hidden = true;
+    logo.onerror = showFallback;
+    logo.src = channel.logo;
+  } else {
+    showFallback();
   }
 
   $('#player-title').textContent = channel.name;
+  document.title = `${channel.name} — Frekans TV`;
   const country = state.countries.get((channel.country ?? '').toLowerCase());
   $('#player-sub').textContent = [
     country ? `${country.flag ?? ''} ${country.name}` : channel.country,
-    channel.categories?.join(', '),
-    channel.stream_count ? `${channel.stream_count} stream${channel.stream_count === 1 ? '' : 's'}` : null,
+    channel.categories?.map((id) => categoryLabel(id)).join(', '),
+    channel.stream_count ? `${channel.stream_count} adres` : null,
   ]
     .filter(Boolean)
     .join(' · ');
@@ -483,11 +521,16 @@ function renderPlayerHeader(channel) {
   const favourite = state.favourites.has(channel.id);
   const button = $('#player-fav');
   button.setAttribute('aria-pressed', String(favourite));
+  button.title = favourite ? 'Favorilerden çıkar' : 'Favorilere ekle';
+  button.setAttribute('aria-label', button.title);
   button.onclick = () => {
     if (state.favourites.has(channel.id)) state.favourites.delete(channel.id);
     else state.favourites.add(channel.id);
     saveFavourites();
-    button.setAttribute('aria-pressed', String(state.favourites.has(channel.id)));
+    const on = state.favourites.has(channel.id);
+    button.setAttribute('aria-pressed', String(on));
+    button.title = on ? 'Favorilerden çıkar' : 'Favorilere ekle';
+    button.setAttribute('aria-label', button.title);
     renderStats();
   };
 }
@@ -497,7 +540,7 @@ function renderStreamList(channel) {
   container.innerHTML = '';
   if (!channel.streams?.length) return;
 
-  container.append(el('p', 'section-title', 'Streams'));
+  container.append(el('p', 'section-title', 'Yayın adresleri'));
 
   channel.streams.forEach((stream, index) => {
     const button = el('button', 'stream-btn');
@@ -516,7 +559,7 @@ function renderStreamList(channel) {
       button.append(el('span', 'tag', `${stream.health.uptime}%`));
     }
 
-    button.addEventListener('click', () => playStream(stream, index));
+    button.addEventListener('click', () => playStream(stream, index, { fallback: false }));
     container.append(button);
   });
 }
@@ -544,7 +587,7 @@ async function renderEpg(channel) {
   const list = (programmes.get(channel.id) ?? []).slice(0, 12);
   if (list.length === 0) return;
 
-  container.append(el('p', 'section-title', "What's on"));
+  container.append(el('p', 'section-title', 'Şimdi ve sonra'));
   const now = Date.now();
 
   for (const programme of list) {
@@ -606,15 +649,15 @@ function renderMeta(channel) {
   list.innerHTML = '';
   const stream = channel.streams?.[0];
   const rows = [
-    ['Channel ID', channel.id],
-    ['Country', channel.country],
-    ['Languages', channel.languages?.join(', ') || '—'],
-    ['Categories', channel.categories?.join(', ') || '—'],
-    ['Website', channel.website || '—'],
-    ['Health score', `${channel.score}/100`],
+    ['Kanal', channel.id],
+    ['Ülke', channel.country],
+    ['Diller', channel.languages?.join(', ') || '—'],
+    ['Türler', channel.categories?.join(', ') || '—'],
+    ['Site', channel.website || '—'],
+    ['Sağlık', `${channel.score}/100`],
     ['Codec', stream?.health?.media?.video_codec ?? '—'],
-    ['Bitrate', stream?.health?.media?.bitrate ? `${Math.round(stream.health.media.bitrate / 1000)} kbps` : '—'],
-    ['Last checked', stream?.health?.checked_at ? new Date(stream.health.checked_at).toLocaleString() : '—'],
+    ['Bit hızı', stream?.health?.media?.bitrate ? `${Math.round(stream.health.media.bitrate / 1000)} kbps` : '—'],
+    ['Son kontrol', stream?.health?.checked_at ? new Date(stream.health.checked_at).toLocaleString('tr-TR') : '—'],
     ['API', `${API}/channels/${channel.id}.json`],
   ];
   for (const [term, description] of rows) {
@@ -628,23 +671,35 @@ function setStatus(message) {
   overlay.hidden = !message;
 }
 
-function playStream(stream, index) {
+function playStream(stream, index, options = {}) {
   const video = $('#video');
+  const fallback = options.fallback !== false;
   destroyPlayer();
 
   document.querySelectorAll('.stream-btn').forEach((button, i) => {
     button.setAttribute('aria-current', String(i === index));
   });
 
-  setStatus('Connecting…');
+  setStatus('Bağlanıyor…');
 
   const onReady = () => setStatus(null);
-  const onFail = (detail) =>
-    setStatus(
-      `This stream could not be played in the browser${detail ? ` (${detail})` : ''}. ` +
-        'It may be geo-restricted, require custom headers, or be offline. ' +
-        'Try another stream, or open the URL in VLC.',
-    );
+  const onFail = (detail) => {
+    const next = fallback ? state.current?.streams?.[index + 1] : null;
+    if (next) {
+      window.setTimeout(() => {
+        if (state.current) playStream(next, index + 1, { fallback: true });
+      }, 0);
+      return;
+    }
+    console.warn('[frekans]', detail);
+    window.setTimeout(() => {
+      if ($('#player').hidden) return;
+      destroyPlayer();
+      setStatus(
+        'Bu yayın tarayıcıda açılmadı. Adres kapalı, bölgeye kilitli ya da özel başlık istiyor olabilir. Başka bir adresi deneyin.',
+      );
+    }, 0);
+  };
 
   const isHls = /\.m3u8(\?|$)/i.test(stream.url) || stream.url.includes('m3u8');
 
@@ -658,14 +713,13 @@ function playStream(stream, index) {
     state.hls = hls;
     hls.on(window.Hls.Events.MANIFEST_PARSED, () => {
       onReady();
-      video.play().catch(() => setStatus('Press play to start.'));
+      video.play().catch(() => setStatus('Başlatmak için oynatın.'));
     });
     hls.on(window.Hls.Events.ERROR, (_event, data) => {
       if (!data.fatal) return;
       // Mixed content is the single most common failure on an HTTPS page.
       const mixed = location.protocol === 'https:' && stream.url.startsWith('http:');
-      onFail(mixed ? 'insecure http stream on an https page' : data.details);
-      destroyPlayer();
+      onFail(mixed ? 'https sayfada http yayın' : data.details);
     });
     hls.loadSource(stream.url);
     hls.attachMedia(video);
@@ -674,8 +728,8 @@ function playStream(stream, index) {
 
   video.src = stream.url;
   video.addEventListener('loadedmetadata', onReady, { once: true });
-  video.addEventListener('error', () => onFail('playback error'), { once: true });
-  video.play().catch(() => setStatus('Press play to start.'));
+  video.addEventListener('error', () => onFail('oynatma hatası'), { once: true });
+  video.play().catch(() => setStatus('Başlatmak için oynatın.'));
 }
 
 function destroyPlayer() {
@@ -694,6 +748,7 @@ function closePlayer() {
   $('#player').hidden = true;
   document.body.style.overflow = '';
   state.current = null;
+  document.title = 'Frekans TV';
   setStatus(null);
 }
 
@@ -740,6 +795,20 @@ function readUrlState() {
   if (sort) {
     state.sort = sort;
     $('#sort').value = sort;
+  }
+
+  if (!params.has('country')) {
+    let seen = true;
+    try {
+      seen = localStorage.getItem('frekans:welcomed') === '1';
+      localStorage.setItem('frekans:welcomed', '1');
+    } catch {
+      seen = true;
+    }
+    if (!seen && $('#filter-country').querySelector('option[value="tr"]')) {
+      state.filters.country = 'tr';
+      $('#filter-country').value = 'tr';
+    }
   }
 }
 
@@ -801,7 +870,7 @@ function wireEvents() {
     const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
     document.documentElement.dataset.theme = next;
     try {
-      localStorage.setItem('nexus:theme', next);
+      localStorage.setItem('frekans:theme', next);
     } catch {
       /* ignore */
     }
@@ -812,11 +881,21 @@ function wireEvents() {
   }
 
   document.addEventListener('keydown', (event) => {
+    const typing = event.target instanceof HTMLElement && event.target.closest('input, textarea, select');
     if (event.key === 'Escape' && !$('#player').hidden) closePlayer();
-    if (event.key === '/' && document.activeElement !== $('#search')) {
+    if (!typing && event.key === '/' && document.activeElement !== $('#search')) {
       event.preventDefault();
       $('#search').focus();
       $('#search').select();
+    }
+    if (
+      !$('#player').hidden &&
+      !typing &&
+      !event.target.closest?.('.player__body') &&
+      (event.key === 'ArrowDown' || event.key === 'ArrowUp')
+    ) {
+      event.preventDefault();
+      zap(event.key === 'ArrowDown' ? 1 : -1);
     }
   });
 
