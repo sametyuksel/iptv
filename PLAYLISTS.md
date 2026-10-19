@@ -1,9 +1,9 @@
 # Playlists
 
 > Generated automatically — do not edit by hand.
-> Last updated **2026-10-19 04:45 UTC**.
+> Last updated **2026-10-19 13:23 UTC**.
 
-10,296 channels with a working stream, out of 30,783 indexed. 12,713 streams responded on the last scan.
+10,293 channels with a working stream, out of 30,847 indexed. 12,754 streams responded on the last scan.
 
 ## Main playlists
 
@@ -42,12 +42,12 @@ One playlist per country, best stream per channel.
 | 🇮🇳 India | 728 | 728 | `https://sametyuksel.github.io/iptv/playlists/country/in.m3u` |
 | 🇷🇺 Russia | 462 | 462 | `https://sametyuksel.github.io/iptv/playlists/country/ru.m3u` |
 | 🇩🇪 Germany | 385 | 385 | `https://sametyuksel.github.io/iptv/playlists/country/de.m3u` |
-| 🇧🇷 Brazil | 276 | 276 | `https://sametyuksel.github.io/iptv/playlists/country/br.m3u` |
+| 🇧🇷 Brazil | 275 | 275 | `https://sametyuksel.github.io/iptv/playlists/country/br.m3u` |
 | 🇮🇹 Italy | 259 | 259 | `https://sametyuksel.github.io/iptv/playlists/country/it.m3u` |
 | 🇪🇸 Spain | 250 | 250 | `https://sametyuksel.github.io/iptv/playlists/country/es.m3u` |
 | 🇩🇴 Dominican Republic | 248 | 248 | `https://sametyuksel.github.io/iptv/playlists/country/do.m3u` |
 | 🇨🇱 Chile | 234 | 234 | `https://sametyuksel.github.io/iptv/playlists/country/cl.m3u` |
-| 🇹🇷 Turkiye | 204 | 204 | `https://sametyuksel.github.io/iptv/playlists/country/tr.m3u` |
+| 🇹🇷 Turkiye | 203 | 203 | `https://sametyuksel.github.io/iptv/playlists/country/tr.m3u` |
 | 🇬🇧 United Kingdom | 203 | 203 | `https://sametyuksel.github.io/iptv/playlists/country/uk.m3u` |
 | 🇸🇪 Sweden | 201 | 201 | `https://sametyuksel.github.io/iptv/playlists/country/se.m3u` |
 | 🇵🇱 Poland | 198 | 198 | `https://sametyuksel.github.io/iptv/playlists/country/pl.m3u` |
@@ -74,7 +74,7 @@ One playlist per country, best stream per channel.
 | 🇻🇪 Venezuela | 72 | 72 | `https://sametyuksel.github.io/iptv/playlists/country/ve.m3u` |
 | 🇨🇷 Costa Rica | 69 | 69 | `https://sametyuksel.github.io/iptv/playlists/country/cr.m3u` |
 | 🇹🇭 Thailand | 68 | 68 | `https://sametyuksel.github.io/iptv/playlists/country/th.m3u` |
-| 🇧🇴 Bolivia | 67 | 67 | `https://sametyuksel.github.io/iptv/playlists/country/bo.m3u` |
+| 🇧🇴 Bolivia | 66 | 66 | `https://sametyuksel.github.io/iptv/playlists/country/bo.m3u` |
 | 🇬🇹 Guatemala | 66 | 66 | `https://sametyuksel.github.io/iptv/playlists/country/gt.m3u` |
 | 🇧🇬 Bulgaria | 65 | 65 | `https://sametyuksel.github.io/iptv/playlists/country/bg.m3u` |
 | 🇵🇾 Paraguay | 65 | 65 | `https://sametyuksel.github.io/iptv/playlists/country/py.m3u` |
@@ -230,13 +230,13 @@ One playlist per category — news, sports, movies, music and so on.
 
 | Category | Channels | Streams | URL |
 | --- | ---: | ---: | --- |
-| General | 2,501 | 2,501 | `https://sametyuksel.github.io/iptv/playlists/category/general.m3u` |
+| General | 2,500 | 2,500 | `https://sametyuksel.github.io/iptv/playlists/category/general.m3u` |
 | News | 973 | 973 | `https://sametyuksel.github.io/iptv/playlists/category/news.m3u` |
-| Entertainment | 800 | 800 | `https://sametyuksel.github.io/iptv/playlists/category/entertainment.m3u` |
+| Entertainment | 799 | 799 | `https://sametyuksel.github.io/iptv/playlists/category/entertainment.m3u` |
 | Music | 752 | 752 | `https://sametyuksel.github.io/iptv/playlists/category/music.m3u` |
 | Religious | 745 | 745 | `https://sametyuksel.github.io/iptv/playlists/category/religious.m3u` |
 | Movies | 639 | 639 | `https://sametyuksel.github.io/iptv/playlists/category/movies.m3u` |
-| Sports | 431 | 431 | `https://sametyuksel.github.io/iptv/playlists/category/sports.m3u` |
+| Sports | 430 | 430 | `https://sametyuksel.github.io/iptv/playlists/category/sports.m3u` |
 | Series | 407 | 407 | `https://sametyuksel.github.io/iptv/playlists/category/series.m3u` |
 | Kids | 363 | 363 | `https://sametyuksel.github.io/iptv/playlists/category/kids.m3u` |
 | Documentary | 231 | 231 | `https://sametyuksel.github.io/iptv/playlists/category/documentary.m3u` |
@@ -271,10 +271,10 @@ One playlist per broadcast language.
 
 | Language | Channels | Streams | URL |
 | --- | ---: | ---: | --- |
-| English | 2,561 | 2,561 | `https://sametyuksel.github.io/iptv/playlists/language/eng.m3u` |
-| Spanish | 2,374 | 2,374 | `https://sametyuksel.github.io/iptv/playlists/language/spa.m3u` |
+| English | 2,562 | 2,562 | `https://sametyuksel.github.io/iptv/playlists/language/eng.m3u` |
+| Spanish | 2,373 | 2,373 | `https://sametyuksel.github.io/iptv/playlists/language/spa.m3u` |
 | Russian | 598 | 598 | `https://sametyuksel.github.io/iptv/playlists/language/rus.m3u` |
-| Portuguese | 499 | 499 | `https://sametyuksel.github.io/iptv/playlists/language/por.m3u` |
+| Portuguese | 498 | 498 | `https://sametyuksel.github.io/iptv/playlists/language/por.m3u` |
 | French | 471 | 471 | `https://sametyuksel.github.io/iptv/playlists/language/fra.m3u` |
 | Arabic | 352 | 352 | `https://sametyuksel.github.io/iptv/playlists/language/ara.m3u` |
 | Hindi | 328 | 328 | `https://sametyuksel.github.io/iptv/playlists/language/hin.m3u` |
@@ -285,7 +285,7 @@ One playlist per broadcast language.
 | Persian | 206 | 206 | `https://sametyuksel.github.io/iptv/playlists/language/fas.m3u` |
 | Romanian | 194 | 194 | `https://sametyuksel.github.io/iptv/playlists/language/ron.m3u` |
 | Polish | 192 | 192 | `https://sametyuksel.github.io/iptv/playlists/language/pol.m3u` |
-| Turkish | 192 | 192 | `https://sametyuksel.github.io/iptv/playlists/language/tur.m3u` |
+| Turkish | 191 | 191 | `https://sametyuksel.github.io/iptv/playlists/language/tur.m3u` |
 | Ukrainian | 182 | 182 | `https://sametyuksel.github.io/iptv/playlists/language/ukr.m3u` |
 | Hungarian | 161 | 161 | `https://sametyuksel.github.io/iptv/playlists/language/hun.m3u` |
 | Danish | 158 | 158 | `https://sametyuksel.github.io/iptv/playlists/language/dan.m3u` |
